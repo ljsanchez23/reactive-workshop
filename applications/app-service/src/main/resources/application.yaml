@@ -1,0 +1,89 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: "reactive-workshop"
+  devtools:
+    add-properties: false
+  h2:
+    console:
+      enabled: true
+      path: "/h2"
+  r2dbc:
+    url: "r2dbc:postgresql://postgres:5432/webflux-onb"
+    username: "postgres"
+    password: "postgres"
+  data:
+    redis:
+      host: "redis"
+      port: 6379
+adapter:
+  restconsumer:
+    timeout: 3000
+    url: "https://reqres.in/"
+  r2dbc:
+    host: "postgres"
+    port: 5432
+    database: "webflux-onb"
+    username: "postgres"
+    password: "postgres"
+    schema: "onboarding"
+  sqs:
+    region: "us-east-1"
+    queueUrl: "http://localstack:4566/000000000000/user-created-events"
+    endpoint: "http://localstack:4566"
+    profile: "personal-account"
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      testGet:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+      testPost:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: "2s"
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: "10s"
+
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+aws:
+  dynamodb:
+    endpoint: "http://localstack:4566"
+
+entrypoint:
+  sqs:
+    region: "us-east-1"
+    endpoint: "http://localstack:4566"
+    queueUrl: "http://localstack:4566/000000000000/user-created-events"
+    waitTimeSeconds: 20
+    maxNumberOfMessages: 10
+    visibilityTimeoutSeconds: 10
+    numberOfThreads: 1
+
